@@ -14,5 +14,18 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('starting_page');
 });
+
+Route::get('/info', function () {
+    return view('info');
+});
+
+Route::get('hobby');
+
+Route::resource('hobby', 'HobbyController'); // 1st param = URI, 2nd = Controller; Resources created with $php artisan route:list --name=hobby
+Route::resource('tag', 'TagController'); 
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
