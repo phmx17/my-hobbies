@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Hobby;  // import class model with additional functionality from Eloquent (parent class)
 use Illuminate\Http\Request;
+// use Illuminate\Support\Carbon;  // great API extension for working with dates and times
 
 class HobbyController extends Controller
 {
+    public function __construct() {
+      $this->middleware('auth')->except(['index', 'show']); // require auth everywhere but for index and show views
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,9 +19,11 @@ class HobbyController extends Controller
     public function index()
     {
         $hobbies = Hobby::all();  // model; :all is an Eloquent function
+        // $hobbies = Hobby::paginate(10); // pagination
+        $hobbies = Hobby::orderBy('created_at', 'DESC')->paginate(10); // descending order and paginate
         return view('hobby.index')->with([
           'hobbies' => $hobbies
-        ]);
+        ]);       
     }
 
     /**
@@ -46,7 +52,8 @@ class HobbyController extends Controller
       // make new instance of Hobby
       $hobby = new Hobby([  // extract params from POST data
           'name' => $request->name, // or: $request['name']
-          'description' => $request->description
+          'description' => $request->description,
+          'user_id' => auth()->id()
         ]);
         $hobby->save(); // Eloquent
 

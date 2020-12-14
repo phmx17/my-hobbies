@@ -25,6 +25,7 @@ Route::get('hobby');
 
 Route::resource('hobby', 'HobbyController'); // 1st param = URI, 2nd = Controller; Resources created with $php artisan route:list --name=hobby
 Route::resource('tag', 'TagController'); 
+Route::resource('user', 'UserController'); 
 
 Auth::routes();
 
