@@ -33,9 +33,16 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
+                      @auth
+                      <li>
+                        <a class="nav-link{{ Request::is('/home') ? ' active' : '' }}" href="/home">Home</a>                      
+                      </li> 
+                      @endauth
+                      @guest
                       <li>
                         <a class="nav-link{{ Request::is('/') ? ' active' : '' }}" href="/">Start</a>
                       </li>
+                      @endguest
                       <li>
                         <a class="nav-link{{ Request::is('info') ? ' active' : '' }}" href="/info">Info</a>
                       </li>

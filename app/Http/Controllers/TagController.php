@@ -107,7 +107,7 @@ class TagController extends Controller
       $oldName = $tag->name;
       $tag->delete();
 
-      return $this->index()->with(  // redirect by calling index()
+      return $this->index()->with(
         [
           'message_success' => 'Your tag <b>'.$oldName.'</b> has been deleted.'
         ]

@@ -9,11 +9,22 @@
                 <div class="card-body">
                 <b>{{ $hobby->name }}</b>
                 <p>{{ $hobby->description }}</p>
-                <p>
-                  @foreach($hobby->tags as $tag)
-                  <a href=""><span class="badge badge-{{ $tag->style }}">{{ $tag->name }}</span></a>
-                  @endforeach
-                </p>
+                @if($hobby->tags->count() > 0)
+                  <b>Used tags: </b>(Click to remove)
+                  <p>
+                    @foreach($hobby->tags as $tag)
+                    <a href="/home/{{ $hobby->id }}/tag/{{ $tag->id }}/detach"><span class="badge badge-{{ $tag->style }}">{{ $tag->name }}</span></a>
+                    @endforeach
+                  </p>
+                @endif
+                @if($availableTags->count() > 0)
+                  <b>Available tags: </b>(Click to add)
+                  <p>
+                    @foreach($availableTags as $tag)
+                    <a href="/home/{{ $hobby->id }}/tag/{{ $tag->id }}/attach"><span class="badge badge-{{ $tag->style }}">{{ $tag->name }}</span></a>
+                    @endforeach
+                  </p>
+                @endif
                 </div>
             </div>
             <div class="mt-2">

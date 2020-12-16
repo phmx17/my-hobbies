@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Hobby;  // import class model with additional functionality from Eloquent (parent class)
+use App\Tag; 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session; // flash session; used in show(); once shown it gets removed from session; called by using ->with()
 // use Illuminate\Support\Carbon;  // great API extension for working with dates and times
 
 class HobbyController extends Controller
@@ -57,11 +59,16 @@ class HobbyController extends Controller
         ]);
         $hobby->save(); // Eloquent
 
-        return $this->index()->with(  // redirect by calling index()
+        // return $this->index()->with(  // redirect by calling index()
+        //   [
+        //     'message_success' => 'Your hobby <b>'.$hobby->name.'</b> has been created.'
+        //   ]
+        // );  // redirect by calling index()
+        return redirect('./hobby/'.$hobby->id)->with(  // redirect to hobby detail
           [
-            'message_success' => 'Your hobby <b>'.$hobby->name.'</b> has been created.'
+            'message_warning' => 'Please assign some Tags to your Hobby'
           ]
-        );  // redirect by calling index()
+          );
     }
 
     /**
@@ -72,9 +79,17 @@ class HobbyController extends Controller
      */
     public function show(Hobby $hobby)  // arrives with the $hobby object referenced in the dynamic segment with $hobby->id in blade.index (overview of all hobbis)
     {
-        return view('hobby.show')->with(  // \resources\views\hobby\show.blade
-          ['hobby' => $hobby]
-        );
+      $allTags = Tag::all();
+      $usedTags = $hobby->tags; // no () even though it calls the function 
+      $availableTags = $allTags->diff($usedTags); // neat function that returns the difference
+      return view('hobby.show')->with(  // \resources\views\hobby\show.blade
+        [
+          'hobby' => $hobby,
+          'availableTags' => $availableTags,
+          'message_success' => Session::get('message_success'),
+          'message_warning' => Session::get('message_warning')          
+        ]
+      );
     }
 
     /**

@@ -11,6 +11,12 @@ class Tag extends Model
     return $this->belongsToMany('App\Hobby');
   }
 
+  public function filteredHobbies() {
+    return $this->belongsToMany('App\Hobby')
+      ->wherePivot('tag_id', $this->id)  // restrict to tag ids matching in a to-many relation
+      ->orderBy('updated_at', 'DESC');  // oder
+  }
+
    /**
    * The attributes that are mass assignable.
    *
