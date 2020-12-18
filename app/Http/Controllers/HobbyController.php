@@ -7,7 +7,7 @@ use App\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session; // flash session; used in show(); once shown it gets removed from session; called by using ->with()
 // use Illuminate\Support\Carbon;  // great API extension for working with dates and times
-
+use Intervention\Image\Facades\Image;
 class HobbyController extends Controller
 {
     public function __construct() {
@@ -48,8 +48,9 @@ class HobbyController extends Controller
     {
       $request->validate([
         'name' => 'required|min:3', // use pipe to separate validators; in blade use $errors->first('name) to get first error if there are several
-        'description' => 'required|min:5'
-      ]) ;
+        'description' => 'required|min:5',
+        'image' => 'mimes:jpeg,jpg,bmp,png,gif'
+      ]);
 
       // make new instance of Hobby
       $hobby = new Hobby([  // extract params from POST data
@@ -59,16 +60,16 @@ class HobbyController extends Controller
         ]);
         $hobby->save(); // Eloquent
 
-        // return $this->index()->with(  // redirect by calling index()
-        //   [
-        //     'message_success' => 'Your hobby <b>'.$hobby->name.'</b> has been created.'
-        //   ]
-        // );  // redirect by calling index()
-        return redirect('./hobby/'.$hobby->id)->with(  // redirect to hobby detail
-          [
-            'message_warning' => 'Please assign some Tags to your Hobby'
-          ]
-          );
+      // if image available go store it
+      if ($request->image) {
+        $this->saveImages($request->image, $hobby->id); // refactored into public function at EOF
+      }
+
+      return redirect('./hobby/'.$hobby->id)->with(  // redirect to hobby detail
+        [
+          'message_warning' => 'Please assign some Tags to your Hobby'
+        ]
+        );
     }
 
     /**
@@ -116,13 +117,17 @@ class HobbyController extends Controller
     { 
       $request->validate([
         'name' => 'required|min:3', // use pipe to separate validators; in blade use $errors->first('name) to get first error if there are several
-        'description' => 'required|min:5'
-      ]) ;
+        'description' => 'required|min:5',
+        'image' => 'mimes:jpeg,jpg,bmp,png,gif'
+      ]);
+      if ($request->image) {
+        $this->saveImages($request->image, $hobby->id); // refactored into public function at EOF
+      }
 
       // call update instead of creating new instance
       $hobby->update([  // extract params from POST data
           'name' => $request->name, // or: $request['name']
-          'description' => $request->description
+          'description' => $request->description          
         ]);
 
         return $this->index()->with(  // redirect by calling index()
@@ -148,5 +153,27 @@ class HobbyController extends Controller
             'message_success' => 'Your hobby <b>'.$oldName.'</b> has been deleted.'
           ]
         ); 
+    }
+    public function saveImages($imageInput, $hobby_id) {
+      $image = Image::make($imageInput);  // implementing Facades method; create instance of class Image
+      if ($image->width() > $image->height()) { //  this would be landscape
+        // create landscape pics
+        $image->widen(1200)
+              ->save(public_path().'/img/hobbies/'.$hobby_id.'_large.jpg')
+              ->widen(400)->pixelate(12)
+              ->save(public_path().'/img/hobbies/'.$hobby_id.'_pixelated.jpg');
+        $image = Image::make($imageInput); // create new instance for thumbnail, otherwise pixelated
+        $image->widen(60)
+              ->save(public_path().'/img/hobbies/'.$hobby_id.'_thumb.jpg');
+      } else {  
+        // create portrait pics
+        $image->heighten(900)
+        ->save(public_path().'/img/hobbies/'.$hobby_id.'_large.jpg')
+        ->heighten(400)->pixelate(12)
+        ->save(public_path().'/img/hobbies/'.$hobby_id.'_pixelated.jpg');
+        $image = Image::make($imageInput); // create new instance for thumbnail, otherwise pixelated
+        $image->heighten(60)
+              ->save(public_path().'/img/hobbies/'.$hobby_id.'_thumb.jpg');
+      } 
     } 
 }
