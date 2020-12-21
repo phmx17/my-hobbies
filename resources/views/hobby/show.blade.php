@@ -31,10 +31,15 @@
                                 @endif
                             </div>
                             <div class="col-md-3">
-                                <a href="/img/400x300.jpg" data-lightbox="400x300.jpg" data-title="{{ $hobby->name }}">
-                                    <img class="img-fluid" src="/img/400x300.jpg" alt="">
+                              @if(Auth::user() && file_exists('img/hobbies/'.$hobby->id.'_large.jpg'))
+                                <a href="/img/hobbies/{{$hobby->id}}_large.jpg" data-lightbox="img/hobbies/{{$hobby->id}}_large.jpg" data-title="{{ $hobby->name }}">
+                                  <img class="img-fluid" src="/img/hobbies/{{$hobby->id}}_large.jpg" alt="large thumbnail">
                                 </a>
-                                <i class="fa fa-search-plus"></i> Click image to enlarge
+                                <i class="fa fa-search-plus"></i> Click Image to Enlarge
+                              @endif 
+                              @if(!Auth::user() && file_exists('img/hobbies/'.$hobby->id.'_pixelated.jpg'))                                
+                                  <img class="img-fluid" src="/img/hobbies/{{$hobby->id}}_pixelated.jpg" alt="pixelated">
+                              @endif 
                             </div>
                         </div>
                     </div>

@@ -8,32 +8,43 @@
                 <div class="card-header">Dashboard</div>
 
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-9">
-                            <h2>Hello {{ auth()->user()->name }}</h2>
-                            <h5>Your Motto</h5>
-                            <p><p>{{ auth()->user()->motto ?? '' }}</p></p>
-                            <h5>Your "About Me" -Text</h5>
-                            <p><p>{{ auth()->user()->about_me ?? '' }}</p></p>
-                        </div>
-                        <div class="col-md-3">
-                            <img class="img-thumbnail" src="/img/300x400.jpg" alt="{{ auth()->user()->name }}">
-                        </div>
+                  <div class="row">
+                    <div class="col-md-9">
+                      <h2>Hello {{ auth()->user()->name }}</h2>
+                      <h5>My Motto:</h5>
+                      <p>{{ auth()->user()->motto ?? '' }}</p>
+                      <h5>About Me:</h5>
+                      <p>{{ auth()->user()->about_me ?? '' }}</p>
+                      <!-- Edit profile button -->
+                      <a class="btn btn-sm btn-primary mb-4" href="/user/{{ auth()->user()->id }}/edit"><i class="fas fa-edit"></i> Edit Profile</a>
                     </div>
 
+                    <!-- Right Column Display User Image -->
+                    <div class="col-md-3">
+                      @if(file_exists('img/users/'.auth()->user()->id.'_large.jpg'))
+                        <a href="/img/users/{{ auth()->user()->id}}_large.jpg" data-lightbox="img/users/{{ auth()->user()->id }}_large.jpg" data-title="{{ auth()->user()->name }}">
+                          <img class="img-thumbnail" src="/img/users/{{ auth()->user()->id }}_large.jpg" alt="large thumbnail">
+                        </a>
+                        <i class="fa fa-search-plus"></i> Click Image to Enlarge
+                      @endif 
+                    </div>
+                  </div>
 
-
+                    <!-- Display Hobbies -->
                     @isset($hobbies)
                         @if($hobbies->count() > 0)
-                        <h3>Your Hobbies:</h3>
+                        <h3>My Hobbies:</h3>
                         @endif
                     <ul class="list-group">
                         @foreach($hobbies as $hobby)
                             <li class="list-group-item">
-                                <a title="Show Details" href="/hobby/{{ $hobby->id }}">
-                                    <img src="/img/thumb_landscape.jpg" alt="thumb"></a>
-                                    {{ $hobby->name }}
-                                </a>
+                                @if(file_exists('img/hobbies/'.$hobby->id.'_thumb.jpg'))
+                                  <a title="Show Details" href="/hobby/{{ $hobby->id }}">
+                                    <img src="/img/hobbies/{{ $hobby->id }}_thumb.jpg" alt="Hobby Thumb">
+                                  </a>
+                                @endif
+                                  &nbsp; <!-- non-breaking space -->
+                                  <a title="Show Details" href="/hobby/{{ $hobby->id }}">{{ $hobby->name }}</a>
                                 @auth
                                     <a class="btn btn-sm btn-light ml-2" href="/hobby/{{ $hobby->id }}/edit"><i class="fas fa-edit"></i> Edit Hobby</a>
                                 @endauth

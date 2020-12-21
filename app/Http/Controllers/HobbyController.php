@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session; // flash session; used in show(); once shown it gets removed from session; called by using ->with()
 // use Illuminate\Support\Carbon;  // great API extension for working with dates and times
 use Intervention\Image\Facades\Image;
+
+
+
+
 class HobbyController extends Controller
 {
     public function __construct() {
@@ -102,7 +106,9 @@ class HobbyController extends Controller
     public function edit(Hobby $hobby)    // route model binding
     {
         return view('hobby.edit')->with([
-          'hobby'=>$hobby
+          'hobby'=>$hobby,
+          'message_success' => Session::get('message_success'),
+          'message_warning' => Session::get('message_warning')  
         ]);
     }
 
@@ -154,7 +160,9 @@ class HobbyController extends Controller
           ]
         ); 
     }
-    public function saveImages($imageInput, $hobby_id) {
+    // save 3 versions of the hobby picture
+    public function saveImages($imageInput, $hobby_id) 
+    {
       $image = Image::make($imageInput);  // implementing Facades method; create instance of class Image
       if ($image->width() > $image->height()) { //  this would be landscape
         // create landscape pics
@@ -176,4 +184,21 @@ class HobbyController extends Controller
               ->save(public_path().'/img/hobbies/'.$hobby_id.'_thumb.jpg');
       } 
     } 
+    
+    // delete all 3 versions of image
+    public function deleteImages($hobby_id) 
+    {
+      if (file_exists(public_path().'/img/hobbies/'.$hobby_id.'_large.jpg'))
+        unlink(public_path().'/img/hobbies/'.$hobby_id.'_large.jpg');
+      if (file_exists(public_path().'/img/hobbies/'.$hobby_id.'_thumb.jpg'))
+        unlink(public_path().'/img/hobbies/'.$hobby_id.'_thumb.jpg');
+      if (file_exists(public_path().'/img/hobbies/'.$hobby_id.'_pixelated.jpg'))
+        unlink(public_path().'/img/hobbies/'.$hobby_id.'_pixelated.jpg');
+
+      return back()->with(  
+        [
+          'message_success' => 'Your image has been deleted.'
+        ]
+      );     
+    }
 }

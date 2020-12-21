@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session; // flash session; used in show(); once shown it gets removed from session; called by using ->with()
 use App\Hobby;    // import model
 
 class HomeController extends Controller
@@ -29,7 +30,8 @@ class HomeController extends Controller
           ->orderBy('updated_at', 'DESC')
           ->get();
         return view('home')->with([
-          'hobbies' => $hobbies
+          'hobbies' => $hobbies,
+          'message_success' => Session::get('message_success')
         ]);
     }
 }
