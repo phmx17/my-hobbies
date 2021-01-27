@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Tag;
 use App\Hobby;
+use Illuminate\Support\Facades\Gate;
 
 class hobbyTagController extends Controller
 {
@@ -19,6 +20,10 @@ class hobbyTagController extends Controller
   }
   public function attachTag($hobby_id, $tag_id) {
     $hobby = Hobby::find($hobby_id);
+    // check policy
+    if (Gate::denies('connect_hobbyTag', $hobby)) {
+      abort(403, 'No way! This hobby is not yours!!');
+    }
     $tag = Tag::find($tag_id);
     $hobby->tags()->attach($tag_id);
     return back()->with(
@@ -29,6 +34,10 @@ class hobbyTagController extends Controller
   }
   public function detachTag($hobby_id, $tag_id) {
     $hobby = Hobby::find($hobby_id);
+    // check policy
+    if (Gate::denies('connect_hobbyTag', $hobby)) {
+      abort(403, "No way! This hobby is not yours!!");
+    }
     $tag = Tag::find($tag_id);
     $hobby->tags()->detach($tag_id);
     return back()->with(

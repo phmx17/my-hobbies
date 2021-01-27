@@ -6,9 +6,14 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session; // flash session; used in show(); once shown it gets removed from session; called by using ->with()
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Gate;  // allow functions only through certain policies
 
 class UserController extends Controller
 {
+    public function __construct() 
+    {
+      $this->middleware('auth')->except(['show']); // require auth everywhere but for index and show views
+    }
     /**
      * Display a listing of the resource.
      *
@@ -59,8 +64,10 @@ class UserController extends Controller
      * @param  \App\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user)
+    public function edit(User $user)    
     {      
+      abort_unless(Gate::allows('update', $user), 403);  // edit page is only accessible if user is also allowed to update();
+      
       return view('user.edit')->with([
         'user'=>$user,
         'message_success' => Session::get('message_success'),
@@ -76,7 +83,9 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, User $user)
-    {       
+    {  
+      abort_unless(Gate::allows('update', $user), 403);  // edit page is only accessible if user is also allowed to update();     
+      
       $request->validate([
         'motto' => 'required|min:2', // use pipe to separate validators; in blade use $errors->first('name) to get first error if there are several
         'image' => 'mimes:jpeg,jpg,bmp,png,gif'
@@ -108,7 +117,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+      abort_unless(Gate::allows('delete', $user), 403);  // edit page is only accessible if user is also allowed to update();
     }
 
     // save three versions of user image

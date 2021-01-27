@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session; // flash session; used in show(); once shown it gets removed from session; called by using ->with()
 // use Illuminate\Support\Carbon;  // great API extension for working with dates and times
 use Intervention\Image\Facades\Image;
-
+use Illuminate\Support\Facades\Gate;  // allow functions only through certain policies
 
 
 
@@ -105,6 +105,8 @@ class HobbyController extends Controller
      */
     public function edit(Hobby $hobby)    // route model binding
     {
+      abort_unless(Gate::allows('update', $hobby), 403);  // edit page is only accessible if user is also allowed to update();
+
         return view('hobby.edit')->with([
           'hobby'=>$hobby,
           'message_success' => Session::get('message_success'),
@@ -121,6 +123,8 @@ class HobbyController extends Controller
      */
     public function update(Request $request, Hobby $hobby)  // $request = form data
     { 
+      abort_unless(Gate::allows('update', $hobby), 403);  // setting policy; redundant but keep anyway
+
       $request->validate([
         'name' => 'required|min:3', // use pipe to separate validators; in blade use $errors->first('name) to get first error if there are several
         'description' => 'required|min:5',
@@ -151,6 +155,8 @@ class HobbyController extends Controller
      */
     public function destroy(Hobby $hobby)
     {
+      abort_unless(Gate::allows('delete', $hobby), 403);
+
         $oldName = $hobby->name;
         $hobby->delete();
 
